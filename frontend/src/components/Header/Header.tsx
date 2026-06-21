@@ -26,6 +26,11 @@ export default function Header() {
               <Link href="/create" className="header__link">
                 Создать
               </Link>
+              {(user as any)?.role === 'admin' && (
+                <Link href="/admin" className="header__link">
+                  ⚙️ Админка
+                </Link>
+              )}
               <span className="header__link" style={{ cursor: 'default', opacity: 0.6 }}>
                 {user?.email}
               </span>
