@@ -15,7 +15,7 @@ export default function Header() {
         <div className="header__inner">
           <Link href="/" className="header__logo">
             <span className="header__logo-icon">AI</span>
-            Presentation Builder
+            <span className="header__logo-text">Presentation Builder</span>
           </Link>
 
           {isAuthenticated ? (
@@ -31,7 +31,7 @@ export default function Header() {
                   ⚙️ Админка
                 </Link>
               )}
-              <span className="header__link" style={{ cursor: 'default', opacity: 0.6 }}>
+              <span className="header__link header__email" style={{ cursor: 'default', opacity: 0.6 }}>
                 {user?.email}
               </span>
               <Button variant="secondary" size="sm" onClick={logout}>

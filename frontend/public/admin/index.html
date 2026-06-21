@@ -74,6 +74,13 @@ ul, ol { list-style: none; }
 .header__link { font-size: 14px; color: var(--color-text-secondary); padding: 8px 12px; border-radius: var(--radius-sm); }
 .header__link:hover { background: var(--color-bg); color: var(--color-text-primary); }
 .header__link--active { color: var(--color-primary); font-weight: 500; }
+@media (max-width: 768px) {
+  .header__hide-tablet { display: none; }
+}
+@media (max-width: 480px) {
+  .header__hide-mobile { display: none; }
+  .header__logo { font-size: 16px; }
+}
 .btn {
   display: inline-flex; align-items: center; gap: 6px;
   padding: 10px 20px; border-radius: var(--radius-sm);
@@ -249,10 +256,30 @@ ul, ol { list-style: none; }
   .admin__content { padding: 16px; }
   .admin__overview, .admin__plans { grid-template-columns: 1fr; }
   .admin__templates { grid-template-columns: repeat(2,1fr); }
+  .admin__section-title { font-size: 18px; }
+  .admin__stat-value { font-size: 24px; }
   .header__inner { padding: 12px 16px; }
   .footer__inner { padding: 0 16px; flex-direction: column; gap: 8px; text-align: center; }
+  .header__logo { font-size: 16px; }
+  .header__nav { gap: 4px; }
 }
-</style>
+@media (max-width: 480px) {
+  .admin__sidebar { padding: 8px 0; }
+  .admin__nav { gap: 4px; padding: 0 12px; }
+  .admin__nav-item { font-size: 13px; padding: 6px 10px; gap: 6px; }
+  .admin__nav-icon { font-size: 14px; width: 16px; }
+  .admin__content { padding: 12px; }
+  .admin__templates { grid-template-columns: 1fr; }
+  .admin__plan-card { padding: 16px; }
+  .admin__plan-price { font-size: 20px; }
+  .admin__stat-card { padding: 16px; }
+  .admin__stat-value { font-size: 22px; }
+  .header__inner { padding: 8px 12px; }
+  .header__nav { gap: 2px; }
+  .btn { padding: 6px 12px; font-size: 12px; }
+  .log-time { width: 100px; font-size: 11px; }
+  .admin__log-item { flex-wrap: wrap; gap: 6px; }
+}
 </head>
 <body>
 
@@ -265,8 +292,8 @@ ul, ol { list-style: none; }
     </a>
     <nav class="header__nav">
       <a href="/AI-Presentation-Builder/" class="header__link">На сайт</a>
-      <a href="/AI-Presentation-Builder/dashboard" class="header__link">Дашборд</a>
-      <span class="header__link" style="cursor:default;opacity:0.6">admin@presentation.ai</span>
+      <a href="/AI-Presentation-Builder/dashboard" class="header__link header__hide-tablet">Дашборд</a>
+      <span class="header__link header__hide-mobile" style="cursor:default;opacity:0.6">admin@presentation.ai</span>
       <a href="/AI-Presentation-Builder/" class="btn btn--sm btn--secondary">Выйти</a>
     </nav>
   </div>

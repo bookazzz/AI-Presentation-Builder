@@ -103,7 +103,25 @@
 }
 
 @media (max-width: 768px) {
-  .create-page__grid {
-    grid-template-columns: 1fr;
+  .create-page__step-indicator {
+    margin-bottom: 8px;
+  }
+  .create-page__form {
+    padding: 24px 20px;
+  }
+}
+
+@media (max-width: 480px) {
+  .create-page__header {
+    padding: 12px 0;
+  }
+  .create-page__header-inner {
+    flex-wrap: wrap;
+  }
+  .create-page__title {
+    font-size: 20px;
+  }
+  .create-page__form {
+    padding: 20px 16px;
   }
 }

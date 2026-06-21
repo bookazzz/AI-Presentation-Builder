@@ -395,32 +395,89 @@
 }
 
 @media (max-width: 1024px) {
+  .landing__features-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
   .landing__pricing-grid {
     grid-template-columns: repeat(2, 1fr);
   }
 }
 
 @media (max-width: 768px) {
-  .landing__hero-title {
-    font-size: 32px;
+  .landing__hero {
+    padding: 48px 0 40px;
   }
-
+  .landing__hero-title {
+    font-size: 36px;
+  }
+  .landing__hero-subtitle {
+    font-size: 16px;
+  }
+  .landing__section-title {
+    font-size: 24px;
+    margin-bottom: 32px;
+  }
+  .landing__how,
+  .landing__features,
+  .landing__formats,
+  .landing__pricing {
+    padding: 40px 0;
+  }
   .landing__steps {
     grid-template-columns: 1fr;
+    gap: 16px;
   }
+  .landing__step {
+    padding: 24px 16px;
+  }
+  .landing__pricing-card {
+    padding: 24px 20px;
+  }
+  .landing__cta {
+    padding: 48px 0;
+  }
+  .landing__cta-title {
+    font-size: 24px;
+  }
+}
 
+@media (max-width: 480px) {
+  .landing__hero {
+    padding: 32px 0 24px;
+  }
+  .landing__hero-title {
+    font-size: 28px;
+  }
+  .landing__hero-subtitle {
+    font-size: 15px;
+  }
+  .landing__section-title {
+    font-size: 22px;
+    margin-bottom: 24px;
+  }
+  .landing__how,
+  .landing__features,
+  .landing__formats,
+  .landing__pricing {
+    padding: 32px 0;
+  }
   .landing__features-grid {
     grid-template-columns: 1fr;
   }
-
   .landing__pricing-grid {
     grid-template-columns: 1fr;
   }
-
-  .landing__pricing-card--featured {
-    transform: none;
+  .landing__format-badge {
+    font-size: 13px;
+    padding: 6px 14px;
   }
-
+  .landing__cta {
+    padding: 40px 0;
+  }
+  .landing__cta-title {
+    font-size: 22px;
+  }
+}
   .landing__pricing-card--featured:hover {
     transform: translateY(-4px);
   }
