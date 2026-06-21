@@ -1,7 +1,7 @@
+from app.schemas import RegisterRequest, LoginRequest, AuthResponse
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
-from pydantic import BaseModel, EmailStr
 
 from app.core.database import get_db
 from app.core.security import hash_password, verify_password, create_access_token
@@ -9,24 +9,6 @@ from app.core.dependencies import get_current_user as get_current_user_from_main
 from app.models.models import User
 
 router = APIRouter()
-
-
-class RegisterRequest(BaseModel):
-    email: EmailStr
-    password: str
-    name: str | None = None
-
-
-class LoginRequest(BaseModel):
-    email: EmailStr
-    password: str
-
-
-class AuthResponse(BaseModel):
-    access_token: str
-    token_type: str = "bearer"
-    user: dict
-
 
 @router.post("/register", response_model=AuthResponse)
 async def register(req: RegisterRequest, db: AsyncSession = Depends(get_db)):
@@ -49,7 +31,6 @@ async def register(req: RegisterRequest, db: AsyncSession = Depends(get_db)):
         user={"id": user.id, "email": user.email, "name": user.name},
     )
 
-
 @router.post("/login", response_model=AuthResponse)
 async def login(req: LoginRequest, db: AsyncSession = Depends(get_db)):
     result = await db.execute(select(User).where(User.email == req.email))
@@ -67,7 +48,6 @@ async def login(req: LoginRequest, db: AsyncSession = Depends(get_db)):
         user={"id": user.id, "email": user.email, "name": user.name},
     )
 
-
 @router.get("/me")
 async def get_me(user: User = Depends(get_current_user_from_main)):
     return {
@@ -77,5 +57,4 @@ async def get_me(user: User = Depends(get_current_user_from_main)):
         "role": user.role.value if hasattr(user.role, 'value') else user.role,
         "created_at": user.created_at.isoformat() if user.created_at else None,
     }
-
 

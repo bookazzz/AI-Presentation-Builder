@@ -1,9 +1,9 @@
-"""Security utilities — JWT tokens and password hashing."""
-import hashlib
+"""Security utilities — JWT tokens and password hashing (bcrypt)."""
 import secrets
 from datetime import datetime, timedelta, timezone
 
 from jose import JWTError, jwt
+from passlib.hash import bcrypt
 
 from app.core.config import settings
 
@@ -11,18 +11,15 @@ ALGORITHM = "HS256"
 
 
 def hash_password(password: str) -> str:
-    """Hash password using SHA-256 with salt."""
-    salt = secrets.token_hex(16)
-    pwd_hash = hashlib.sha256(f"{salt}{password}".encode()).hexdigest()
-    return f"{salt}${pwd_hash}"
+    """Hash password using bcrypt (12 rounds)."""
+    return bcrypt.using(rounds=12).hash(password)
 
 
 def verify_password(plain_password: str, hashed_password: str) -> bool:
-    """Verify a password against a hash."""
+    """Verify a password against a bcrypt hash."""
     try:
-        salt, pwd_hash = hashed_password.split("$", 1)
-        return hashlib.sha256(f"{salt}{plain_password}".encode()).hexdigest() == pwd_hash
-    except (ValueError, AttributeError):
+        return bcrypt.verify(plain_password, hashed_password)
+    except (ValueError, TypeError):
         return False
 
 

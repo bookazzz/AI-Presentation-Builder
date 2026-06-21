@@ -1,3 +1,5 @@
+from typing import Optional
+from app.schemas import CreatePresentationRequest, UpdatePresentationRequest
 """Presentation CRUD and generation endpoints."""
 import json
 import logging
@@ -6,7 +8,6 @@ from datetime import datetime, timezone
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select, desc
-from pydantic import BaseModel, Field
 
 from app.core.database import get_db
 from app.core.dependencies import get_current_user
@@ -15,29 +16,7 @@ from app.models.models import User, Presentation, GenerationTask, Export
 logger = logging.getLogger(__name__)
 router = APIRouter()
 
-
 # --- Schemas ---
-
-class CreatePresentationRequest(BaseModel):
-    title: str = Field(..., max_length=500)
-    type: str = Field(default="business")
-    audience: str = Field(default="client")
-    style: str = Field(default="business")
-    language: str = Field(default="ru")
-    slides_count: int = Field(default=10, ge=3, le=100)
-    source_file_id: str | None = None
-
-
-class UpdatePresentationRequest(BaseModel):
-    title: str | None = None
-    type: str | None = None
-    audience: str | None = None
-    style: str | None = None
-    language: str | None = None
-    slides_count: int | None = None
-    presentation_json: dict | None = None
-    status: str | None = None
-
 
 # --- CRUD ---
 
@@ -64,7 +43,6 @@ async def create_presentation(
     await db.refresh(pres)
     return _serialize_presentation(pres)
 
-
 @router.get("")
 @router.get("/")
 async def list_presentations(
@@ -79,7 +57,6 @@ async def list_presentations(
     pres_list = result.scalars().all()
     return [_serialize_presentation(p) for p in pres_list]
 
-
 @router.get("/{pres_id}")
 async def get_presentation(
     pres_id: str,
@@ -93,7 +70,6 @@ async def get_presentation(
     if not pres:
         raise HTTPException(status_code=404, detail="Presentation not found")
     return _serialize_presentation(pres)
-
 
 @router.patch("/{pres_id}")
 async def update_presentation(
@@ -120,7 +96,6 @@ async def update_presentation(
     await db.commit()
     await db.refresh(pres)
     return _serialize_presentation(pres)
-
 
 @router.delete("/{pres_id}")
 async def delete_presentation(
@@ -150,7 +125,6 @@ async def delete_presentation(
     await db.delete(pres)
     await db.commit()
     return {"status": "deleted"}
-
 
 # --- Generation ---
 
@@ -198,7 +172,6 @@ async def generate_outline(
 
     return {"id": task.id, "status": "completed", "progress": 100}
 
-
 @router.post("/{pres_id}/generate-slides")
 async def generate_slides(
     pres_id: str,
@@ -241,7 +214,6 @@ async def generate_slides(
 
     return {"id": task.id, "status": "completed", "progress": 100}
 
-
 @router.post("/{pres_id}/regenerate-slide/{slide_index}")
 async def regenerate_slide(
     pres_id: str,
@@ -278,7 +250,6 @@ async def regenerate_slide(
     await db.refresh(pres)
     return _serialize_presentation(pres)
 
-
 # --- Tasks ---
 
 @router.get("/tasks/{task_id}")
@@ -301,7 +272,6 @@ async def get_task_status(
         "progress": task.progress,
         "error_message": task.error_message,
     }
-
 
 # --- Helpers ---
 
@@ -364,7 +334,6 @@ def _generate_outline_fallback(pres: Presentation) -> dict:
         "slides": slides,
     }
 
-
 def _enrich_slides_fallback(pres: Presentation) -> dict:
     """Enrich outline with more detailed fallback content."""
     try:
@@ -404,7 +373,6 @@ def _enrich_slides_fallback(pres: Presentation) -> dict:
         "slides": slides,
     }
 
-
 def _regenerate_slide_content(slide: dict, pres: Presentation) -> list:
     """Re-generate content for a single slide."""
     s_type = slide.get("type", "content")
@@ -422,7 +390,6 @@ def _regenerate_slide_content(slide: dict, pres: Presentation) -> list:
     elif s_type == "cta":
         return ["Recommended actions", "Timeline", "Owner & metrics"]
     return [f"Content for {title}"]
-
 
 def _serialize_presentation(p: Presentation) -> dict:
     """Convert Presentation ORM to dict."""

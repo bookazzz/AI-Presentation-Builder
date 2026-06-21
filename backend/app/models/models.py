@@ -3,9 +3,24 @@ from sqlalchemy import String, Text, Integer, Float, Boolean, DateTime, ForeignK
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from datetime import datetime, timezone
 import uuid
+from enum import Enum
 
 from app.core.database import Base
 from app.models import TimestampMixin
+
+
+class PresentationStatus(str, Enum):
+    draft = "draft"
+    uploading = "uploading"
+    parsed = "parsed"
+    analyzing = "analyzing"
+    outline_generated = "outline_generated"
+    generating_slides = "generating_slides"
+    generating = "generating"
+    rendering = "rendering"
+    completed = "completed"
+    failed = "failed"
+    exporting = "exporting"
 
 
 class User(Base, TimestampMixin):
