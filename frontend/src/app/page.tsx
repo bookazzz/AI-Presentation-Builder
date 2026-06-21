@@ -19,6 +19,89 @@ const features = [
   { icon: '☁️', title: 'История в личном кабинете', desc: 'Все презентации сохраняются, можно вернуться и скачать.' },
 ];
 
+const plans = [
+  {
+    name: 'Free',
+    desc: 'Для первых проб',
+    price: '0',
+    currency: '₽',
+    period: '/мес',
+    featured: false,
+    badge: null,
+    features: [
+      { text: '3 презентации в месяц', ok: true },
+      { text: 'До 8 слайдов', ok: true },
+      { text: 'Экспорт PDF', ok: true },
+      { text: 'Водяной знак', ok: true },
+      { text: 'Базовые шаблоны', ok: true },
+      { text: 'Экспорт PPTX', ok: false },
+      { text: 'Работа с Excel', ok: false },
+    ],
+    cta: 'Начать бесплатно',
+    href: '/register',
+  },
+  {
+    name: 'Start',
+    desc: 'Для регулярной работы',
+    price: '990',
+    currency: '₽',
+    period: '/мес',
+    featured: true,
+    badge: 'Популярный',
+    features: [
+      { text: '20 презентаций в месяц', ok: true },
+      { text: 'До 25 слайдов', ok: true },
+      { text: 'Экспорт PPTX и PDF', ok: true },
+      { text: 'Без водяного знака', ok: true },
+      { text: 'Базовые + продвинутые шаблоны', ok: true },
+      { text: 'Работа с Excel', ok: true },
+      { text: 'Брендбук и логотип', ok: false },
+    ],
+    cta: 'Выбрать Start',
+    href: '/register?plan=start',
+  },
+  {
+    name: 'PRO',
+    desc: 'Для профессионалов',
+    price: '2 990',
+    currency: '₽',
+    period: '/мес',
+    featured: false,
+    badge: null,
+    features: [
+      { text: '100 презентаций в месяц', ok: true },
+      { text: 'До 50 слайдов', ok: true },
+      { text: 'Экспорт PPTX и PDF', ok: true },
+      { text: 'Без водяного знака', ok: true },
+      { text: 'Расширенные шаблоны', ok: true },
+      { text: 'Брендбук + загрузка логотипа', ok: true },
+      { text: 'Заметки спикера', ok: true },
+    ],
+    cta: 'Выбрать PRO',
+    href: '/register?plan=pro',
+  },
+  {
+    name: 'Business',
+    desc: 'Для команд',
+    price: '9 900',
+    currency: '₽',
+    period: '/мес',
+    featured: false,
+    badge: null,
+    features: [
+      { text: 'Безлимитные презентации', ok: true },
+      { text: 'До 100 слайдов', ok: true },
+      { text: 'Командные рабочие пространства', ok: true },
+      { text: 'Единый брендбук', ok: true },
+      { text: 'Роли пользователей', ok: true },
+      { text: 'Индивидуальные шаблоны', ok: true },
+      { text: 'API-доступ', ok: true },
+    ],
+    cta: 'Связаться с нами',
+    href: '/register?plan=business',
+  },
+];
+
 export default function Home() {
   return (
     <div>
@@ -78,11 +161,71 @@ export default function Home() {
           <h2 className="landing__section-title">Возможности сервиса</h2>
           <div className="landing__features-grid">
             {features.map((f, i) => (
-              <Card key={i} hover>
-                <div className="landing__feature-icon">{f.icon}</div>
-                <h3 className="landing__feature-title">{f.title}</h3>
-                <p className="landing__feature-desc">{f.desc}</p>
+              <Card key={i}>
+                <div className="landing__feature">
+                  <div className="landing__feature-icon">{f.icon}</div>
+                  <h3 className="landing__feature-title">{f.title}</h3>
+                  <p className="landing__feature-desc">{f.desc}</p>
+                </div>
               </Card>
+            ))}
+          </div>
+        </Container>
+      </section>
+
+      {/* Pricing */}
+      <section className="landing__pricing">
+        <Container>
+          <h2 className="landing__section-title">Тарифы</h2>
+          <p style={{ textAlign: 'center', color: 'var(--color-text-muted)', marginTop: -24, marginBottom: 8, fontSize: 15 }}>
+            Выберите подходящий тариф. Все цены указаны с НДС.
+          </p>
+          <div className="landing__pricing-grid">
+            {plans.map((plan) => (
+              <div
+                key={plan.name}
+                className={[
+                  'landing__pricing-card',
+                  plan.featured ? 'landing__pricing-card--featured' : '',
+                ].filter(Boolean).join(' ')}
+              >
+                {plan.badge && (
+                  <span className="landing__pricing-badge">{plan.badge}</span>
+                )}
+                <div className="landing__pricing-name">{plan.name}</div>
+                <div className="landing__pricing-desc">{plan.desc}</div>
+
+                <div className="landing__pricing-price">
+                  <span className="landing__pricing-amount">{plan.price}</span>
+                  <span className="landing__pricing-currency">{plan.currency}</span>
+                  <span className="landing__pricing-period">{plan.period}</span>
+                </div>
+
+                <div className="landing__pricing-features">
+                  {plan.features.map((f, i) => (
+                    <span
+                      key={i}
+                      className={[
+                        'landing__pricing-feature',
+                        !f.ok ? 'landing__pricing-feature--missing' : '',
+                      ].filter(Boolean).join(' ')}
+                    >
+                      {f.text}
+                    </span>
+                  ))}
+                </div>
+
+                <div className="landing__pricing-action">
+                  <Link href={plan.href}>
+                    <Button
+                      variant={plan.featured ? 'primary' : 'secondary'}
+                      full
+                    >
+                      {plan.cta}
+                    </Button>
+                  </Link>
+                </div>
+              </div>
             ))}
           </div>
         </Container>
