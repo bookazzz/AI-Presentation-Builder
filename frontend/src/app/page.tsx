@@ -1,82 +1,107 @@
+import Link from 'next/link';
+import Container from '@/components/Container/Container';
+import Button from '@/components/Button/Button';
+import Card from '@/components/Card/Card';
+import './page.css';
+
+const steps = [
+  { number: 1, title: 'Загрузите файл', desc: 'TXT, DOCX, XLSX, CSV или PDF. Или просто вставьте текст.' },
+  { number: 2, title: 'Настройте презентацию', desc: 'Выберите тип, стиль, аудиторию и количество слайдов.' },
+  { number: 3, title: 'Скачайте результат', desc: 'Готовая презентация в PPTX или PDF с графиками и выводами.' },
+];
+
+const features = [
+  { icon: '📝', title: 'Из текста в слайды', desc: 'Анализируем документ, выделяем тезисы и строим логичную структуру.' },
+  { icon: '📊', title: 'Excel → графики', desc: 'Строим диаграммы, считаем метрики, формируем выводы.' },
+  { icon: '🎨', title: '8+ стилей оформления', desc: 'Деловой, инвестиционный, маркетинговый, аналитический и другие.' },
+  { icon: '✏️', title: 'Редактор слайдов', desc: 'Правите текст, меняете порядок, регенерируете слайды.' },
+  { icon: '📎', title: 'PPTX / PDF экспорт', desc: 'Скачиваете готовый файл для PowerPoint.' },
+  { icon: '☁️', title: 'История в личном кабинете', desc: 'Все презентации сохраняются, можно вернуться и скачать.' },
+];
+
 export default function Home() {
   return (
-    <main className="flex-1">
+    <div>
       {/* Hero */}
-      <section className="py-20 px-4 text-center">
-        <h1 className="text-5xl font-bold mb-4 text-gray-900">
-          AI Presentation Builder
-        </h1>
-        <p className="text-xl text-gray-600 max-w-2xl mx-auto mb-8">
-          Загрузите текст или Excel — получите готовую презентацию 
-          с выводами, графиками и экспортом в PPTX/PDF за несколько минут.
-        </p>
-        <div className="flex gap-4 justify-center">
-          <a
-            href="/register"
-            className="bg-blue-600 text-white px-8 py-3 rounded-lg text-lg font-medium hover:bg-blue-700 transition"
-          >
-            Начать бесплатно
-          </a>
-          <a
-            href="/login"
-            className="border border-gray-300 px-8 py-3 rounded-lg text-lg font-medium hover:bg-gray-100 transition"
-          >
-            Войти
-          </a>
-        </div>
+      <section className="landing__hero">
+        <Container narrow>
+          <h1 className="landing__hero-title">
+            <span className="landing__hero-title-accent">Загрузите</span> текст или Excel —<br />
+            получите готовую <span className="landing__hero-title-accent">презентацию</span>
+          </h1>
+          <p className="landing__hero-subtitle">
+            Сервис анализирует документ, выделяет структуру, строит графики, 
+            формирует выводы и создаёт презентацию с экспортом в PPTX/PDF за несколько минут.
+          </p>
+          <div className="landing__hero-actions">
+            <Link href="/register">
+              <Button size="lg">Начать бесплатно</Button>
+            </Link>
+            <Link href="/login" className="landing__hero-link">
+              У меня уже есть аккаунт
+            </Link>
+          </div>
+        </Container>
       </section>
 
       {/* How it works */}
-      <section className="py-16 px-4 bg-white">
-        <div className="max-w-5xl mx-auto">
-          <h2 className="text-3xl font-bold text-center mb-12">Как это работает</h2>
-          <div className="grid md:grid-cols-3 gap-8">
-            {steps.map((step, i) => (
-              <div key={i} className="text-center">
-                <div className="w-12 h-12 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center text-xl font-bold mx-auto mb-4">
-                  {i + 1}
-                </div>
-                <h3 className="text-xl font-semibold mb-2">{step.title}</h3>
-                <p className="text-gray-600">{step.desc}</p>
+      <section className="landing__how">
+        <Container>
+          <h2 className="landing__section-title">Как это работает</h2>
+          <div className="landing__steps">
+            {steps.map((step) => (
+              <div key={step.number} className="landing__step">
+                <div className="landing__step-number">{step.number}</div>
+                <h3 className="landing__step-title">{step.title}</h3>
+                <p className="landing__step-desc">{step.desc}</p>
               </div>
             ))}
           </div>
-        </div>
+        </Container>
       </section>
 
-      {/* Supported formats */}
-      <section className="py-16 px-4">
-        <div className="max-w-4xl mx-auto text-center">
-          <h2 className="text-3xl font-bold mb-8">Поддерживаемые форматы</h2>
-          <div className="flex flex-wrap justify-center gap-4">
+      {/* Formats */}
+      <section className="landing__formats">
+        <Container>
+          <h2 className="landing__section-title">Поддерживаемые форматы</h2>
+          <div className="landing__formats-list">
             {['TXT', 'DOCX', 'XLSX', 'CSV', 'PDF'].map((fmt) => (
-              <span key={fmt} className="bg-gray-200 px-6 py-3 rounded-lg font-medium text-gray-700">
-                {fmt}
-              </span>
+              <span key={fmt} className="landing__format-badge">{fmt}</span>
             ))}
           </div>
-        </div>
+        </Container>
       </section>
 
-      {/* Footer */}
-      <footer className="py-8 px-4 text-center text-gray-500 text-sm border-t">
-        AI Presentation Builder &copy; {new Date().getFullYear()}
-      </footer>
-    </main>
+      {/* Features */}
+      <section className="landing__features">
+        <Container>
+          <h2 className="landing__section-title">Возможности сервиса</h2>
+          <div className="landing__features-grid">
+            {features.map((f, i) => (
+              <Card key={i} hover>
+                <div className="landing__feature-icon">{f.icon}</div>
+                <h3 className="landing__feature-title">{f.title}</h3>
+                <p className="landing__feature-desc">{f.desc}</p>
+              </Card>
+            ))}
+          </div>
+        </Container>
+      </section>
+
+      {/* CTA */}
+      <section className="landing__cta">
+        <Container narrow>
+          <h2 className="landing__cta-title">Готовы попробовать?</h2>
+          <p className="landing__cta-subtitle">
+            Создайте первую презентацию бесплатно — без карты, без обязательств.
+          </p>
+          <Link href="/register">
+            <Button variant="secondary" size="lg">
+              Создать презентацию
+            </Button>
+          </Link>
+        </Container>
+      </section>
+    </div>
   );
 }
-
-const steps = [
-  {
-    title: 'Загрузите файл',
-    desc: 'TXT, DOCX, XLSX, CSV или PDF. Или просто вставьте текст.',
-  },
-  {
-    title: 'Настройте презентацию',
-    desc: 'Выберите тип, стиль, аудиторию и количество слайдов.',
-  },
-  {
-    title: 'Скачайте результат',
-    desc: 'Готовая презентация в PPTX или PDF с графиками и выводами.',
-  },
-];

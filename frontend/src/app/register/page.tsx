@@ -2,8 +2,12 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 import { useAuthStore } from '@/store/authStore';
+import Input from '@/components/Input/Input';
+import Button from '@/components/Button/Button';
 import toast from 'react-hot-toast';
+import '../login/login.css';
 
 export default function RegisterPage() {
   const [email, setEmail] = useState('');
@@ -28,54 +32,50 @@ export default function RegisterPage() {
   };
 
   return (
-    <div className="flex-1 flex items-center justify-center px-4">
-      <form onSubmit={handleSubmit} className="bg-white p-8 rounded-xl shadow-md w-full max-w-md">
-        <h1 className="text-2xl font-bold mb-6 text-center">Регистрация</h1>
-        <div className="space-y-4">
-          <div>
-            <label className="block text-sm font-medium mb-1">Имя</label>
-            <input
-              type="text"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              className="w-full border rounded-lg px-3 py-2"
-              required
-            />
-          </div>
-          <div>
-            <label className="block text-sm font-medium mb-1">Email</label>
-            <input
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              className="w-full border rounded-lg px-3 py-2"
-              required
-            />
-          </div>
-          <div>
-            <label className="block text-sm font-medium mb-1">Пароль</label>
-            <input
-              type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              className="w-full border rounded-lg px-3 py-2"
-              minLength={6}
-              required
-            />
-          </div>
+    <div className="auth-page">
+      <form className="auth-form" onSubmit={handleSubmit}>
+        <h1 className="auth-form__title">Регистрация</h1>
+        <p className="auth-form__subtitle">Создайте аккаунт для работы с сервисом</p>
+
+        <div className="auth-form__fields">
+          <Input
+            label="Имя"
+            type="text"
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+            placeholder="Ваше имя"
+            required
+          />
+          <Input
+            label="Email"
+            type="email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            placeholder="you@example.com"
+            required
+          />
+          <Input
+            label="Пароль"
+            type="password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            placeholder="Минимум 6 символов"
+            minLength={6}
+            required
+          />
         </div>
-        <button
-          type="submit"
-          disabled={loading}
-          className="w-full bg-blue-600 text-white py-2 rounded-lg mt-6 font-medium hover:bg-blue-700 disabled:opacity-50"
-        >
-          {loading ? 'Регистрация...' : 'Создать аккаунт'}
-        </button>
-        <p className="text-center mt-4 text-sm text-gray-500">
+
+        <div className="auth-form__submit">
+          <Button type="submit" full disabled={loading}>
+            {loading ? 'Регистрация...' : 'Создать аккаунт'}
+          </Button>
+        </div>
+
+        <p className="auth-form__footer">
           Уже есть аккаунт?{' '}
-          <a href="/login" className="text-blue-600 hover:underline">
+          <Link href="/login" className="auth-form__link">
             Войти
-          </a>
+          </Link>
         </p>
       </form>
     </div>
