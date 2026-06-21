@@ -1,1 +1,1 @@
-# App
+# app/__init__.py

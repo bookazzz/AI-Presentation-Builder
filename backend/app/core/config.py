@@ -1,48 +1,45 @@
-"""Application configuration."""
-
 from pydantic_settings import BaseSettings
-from typing import Literal
+from typing import List
+import os
 
 
 class Settings(BaseSettings):
+    # App
     app_name: str = "AI Presentation Builder"
+    app_version: str = "1.0.0"
     debug: bool = False
-    secret_key: str = "change...n"
 
     # Database
-    database_url: str = "postgresql+asyncpg://user:password@localhost:5432/ai_presentation_builder"
-    database_url_sync: str = "postgresql+psycopg2://user:password@localhost:5432/ai_presentation_builder"
+    database_url: str = "postgresql+asyncpg://postgres:postgres@localhost:5432/ai_presentations"
+    database_url_sync: str = "postgresql+psycopg2://postgres:postgres@localhost:5432/ai_presentations"
 
     # Redis
     redis_url: str = "redis://localhost:6379/0"
 
-    # Celery
-    celery_broker_url: str = "redis://localhost:6379/0"
-    celery_result_backend: str = "redis://localhost:6379/0"
+    # JWT
+    secret_key: str = "change-me-in-production"
+    jwt_algorithm: str = "HS256"
+    access_token_expire_minutes: int = 60 * 24  # 24 hours
+
+    # Files
+    upload_dir: str = "./uploads"
+    export_dir: str = "./exports"
+    max_file_size_mb: int = 20
 
     # LLM
     llm_provider: str = "openai"
-    llm_api_key: str = ""
-    llm_model_fast: str = "gpt-4o-mini"
-    llm_model_strong: str = "gpt-4o"
-
-    # Storage
-    storage_backend: Literal["local", "s3"] = "local"
-    storage_local_path: str = "./uploads"
+    openai_api_key: str = ""
+    openai_model: str = "gpt-4o-mini"
 
     # CORS
-    frontend_url: str = "http://localhost:3000"
+    cors_origins: List[str] = [
+        "http://localhost:3000",
+        "https://bookazzz.github.io",
+    ]
 
-    # Limits
-    max_file_size_mb: int = 20
-    max_text_length: int = 100000
-    max_excel_rows: int = 20000
-    max_excel_sheets: int = 10
-    max_slides_free: int = 8
-    max_slides_start: int = 25
-    max_slides_pro: int = 50
-
-    model_config = {"env_file": ".env", "env_file_encoding": "utf-8"}
+    class Config:
+        env_file = ".env"
+        case_sensitive = False
 
 
 settings = Settings()
