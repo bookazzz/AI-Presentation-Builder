@@ -87,7 +87,7 @@ async def upload_file(
 
 @router.get("/{file_id}")
 async def get_file(
-    file_id: int,
+    file_id: str,
     user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
 ):
@@ -117,7 +117,7 @@ async def get_file(
 
 @router.delete("/{file_id}")
 async def delete_file(
-    file_id: int,
+    file_id: str,
     user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
 ):

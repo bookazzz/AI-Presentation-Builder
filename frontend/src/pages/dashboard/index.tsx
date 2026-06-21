@@ -14,6 +14,7 @@ import styles from './dashboard.module.css';
 export default function Dashboard() {
   const router = useRouter();
   const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
+  const [mounted, setMounted] = useState(false);
   const [presentations, setPresentations] = useState<Presentation[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState('');
@@ -34,6 +35,10 @@ export default function Dashboard() {
       setIsLoading(false);
     }
   }, [router]);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   useEffect(() => {
     if (!isAuthenticated) {
@@ -91,7 +96,21 @@ export default function Dashboard() {
     { label: 'Готовых к экспорту', value: presentations.filter((p) => p.status === 'completed').length },
   ];
 
-  if (!isAuthenticated) return null;
+  if (!mounted) {
+    return (
+      <div className={styles.page}>
+        <Header />
+        <main className={styles.main}>
+          <Container>
+            <div className={styles.title}>Мои презентации</div>
+            <p>Загрузка...</p>
+          </Container>
+        </main>
+        <Footer />
+      </div>
+    );
+  }
+  if (!isAuthenticated && mounted) return null;
 
   return (
     <div className={styles.page}>

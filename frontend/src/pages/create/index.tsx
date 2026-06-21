@@ -1,4 +1,4 @@
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { useRouter } from 'next/router';
 import Header from '@/components/Header/Header';
 import Footer from '@/components/Footer/Footer';
@@ -9,7 +9,9 @@ import Input from '@/components/Input/Input';
 import Select from '@/components/Select/Select';
 import TextArea from '@/components/TextArea/TextArea';
 import FileUpload from '@/components/FileUpload/FileUpload';
+import Loader from '@/components/Loader/Loader';
 import StepIndicator from '@/components/StepIndicator/StepIndicator';
+import styles from './create.module.css';
 import { useAuthStore } from '@/store/authStore';
 import {
   createPresentation,
@@ -23,7 +25,6 @@ import {
   type Presentation,
   type TaskStatus,
 } from '@/lib/presentations';
-import styles from './create.module.css';
 
 const steps = ['Загрузка', 'Настройки', 'Структура', 'Генерация', 'Результат'];
 
@@ -62,6 +63,7 @@ const styleOptions = [
 export default function CreatePresentation() {
   const router = useRouter();
   const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
+  const [mounted, setMounted] = useState(false);
 
   const [step, setStep] = useState(1);
   const [error, setError] = useState('');
@@ -87,10 +89,31 @@ export default function CreatePresentation() {
   const [exportId, setExportId] = useState<string | null>(null);
   const pollRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
-  if (!isAuthenticated) {
-    router.push('/login');
-    return null;
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  useEffect(() => {
+    if (mounted && !isAuthenticated) {
+      router.push('/login');
+    }
+  }, [mounted, isAuthenticated, router]);
+
+  if (!mounted) {
+    return (
+      <div className={styles.page}>
+        <Header />
+        <main className={styles.main}>
+          <Container>
+            <h1 className={styles.title}>Создание презентации</h1>
+            <p>Загрузка...</p>
+          </Container>
+        </main>
+        <Footer />
+      </div>
+    );
   }
+  if (!isAuthenticated) return null;
 
   const handleFileSelect = (f: File) => {
     setFile(f);
@@ -124,7 +147,6 @@ export default function CreatePresentation() {
       let fileId: string | null = null;
 
       if (file) {
-        // Загружаем файл
         const uploadRes = await uploadFile(file);
         fileId = uploadRes.id;
 
@@ -137,7 +159,6 @@ export default function CreatePresentation() {
           slides_count: parseInt(slidesCount) || 10,
         });
       } else {
-        // Из текста — передаём как source_file_id=null, текст будет через JSON
         created = await createPresentation({
           title,
           type,
@@ -162,9 +183,9 @@ export default function CreatePresentation() {
       setTaskStatus(outlineTask);
 
       // Poll outline
-      const outline = await pollUntilDone(outlineTask.id);
-      if (!outline || outline.status === 'failed') {
-        setError('Ошибка генерации структуры: ' + (outline?.error_message || ''));
+      const outlineResult = await pollUntilDone(outlineTask.id);
+      if (!outlineResult || outlineResult.status === 'failed') {
+        setError('Ошибка генерации структуры: ' + (outlineResult?.error_message || ''));
         setIsProcessing(false);
         return;
       }
@@ -200,7 +221,7 @@ export default function CreatePresentation() {
   const pollUntilDone = (taskId: string): Promise<TaskStatus | null> => {
     return new Promise((resolve) => {
       let attempts = 0;
-      const maxAttempts = 60; // 60 * 2s = 2 min
+      const maxAttempts = 60;
 
       const check = async () => {
         attempts++;

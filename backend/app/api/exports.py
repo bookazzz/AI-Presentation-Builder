@@ -19,7 +19,7 @@ router = APIRouter()
 
 @router.post("/{pres_id}/pptx")
 async def export_pptx(
-    pres_id: int,
+    pres_id: str,
     user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
 ):
@@ -40,7 +40,7 @@ async def export_pptx(
 
 @router.post("/{pres_id}/pdf")
 async def export_pdf(
-    pres_id: int,
+    pres_id: str,
     user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
 ):
@@ -61,7 +61,7 @@ async def export_pdf(
 
 @router.get("/{export_id}/download")
 async def download_export(
-    export_id: int,
+    export_id: str,
     user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
 ):
@@ -86,7 +86,7 @@ async def download_export(
 
 @router.get("/{pres_id}/history")
 async def get_export_history(
-    pres_id: int,
+    pres_id: str,
     user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
 ):

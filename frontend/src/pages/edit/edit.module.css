@@ -1,0 +1,238 @@
+.page {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.main {
+  flex: 1;
+  padding: 2rem 0;
+}
+
+.editorLayout {
+  display: grid;
+  grid-template-columns: 240px 1fr 300px;
+  gap: 1.5rem;
+  min-height: 70vh;
+}
+
+.sidebar {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.sidebarTitle {
+  font-size: 1rem;
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+}
+
+.slideList {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  margin-bottom: 1rem;
+}
+
+.slideItem {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem;
+  border: 1px solid transparent;
+  border-radius: 8px;
+  background: transparent;
+  cursor: pointer;
+  text-align: left;
+  font-size: 0.875rem;
+  width: 100%;
+  transition: all 0.2s;
+}
+.slideItem:hover {
+  background: rgba(108, 99, 255, 0.08);
+}
+.slideItemActive {
+  background: rgba(108, 99, 255, 0.15);
+  border-color: var(--primary);
+}
+
+.slideNum {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: var(--primary);
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.75rem;
+  flex-shrink: 0;
+}
+
+.slideLabel {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.center {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.previewHeader {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.previewTitle {
+  font-size: 1.125rem;
+  font-weight: 600;
+}
+
+.previewType {
+  font-size: 0.75rem;
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+  background: var(--primary);
+  color: white;
+}
+
+.previewNav {
+  display: flex;
+  gap: 0.25rem;
+  margin-left: auto;
+}
+
+.previewCard {
+  background: #1a1a2e;
+  color: white;
+  min-height: 300px;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.previewSlideHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.previewSlideHeader h3 {
+  color: #6c63ff;
+  font-size: 1.25rem;
+}
+
+.previewSlideNum {
+  font-size: 0.875rem;
+  opacity: 0.6;
+}
+
+.bulletList {
+  list-style: none;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.bulletItem {
+  padding-left: 1rem;
+  position: relative;
+}
+.bulletItem::before {
+  content: "•";
+  position: absolute;
+  left: 0;
+  color: #6c63ff;
+}
+
+.editor {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.editorTitle {
+  font-size: 1rem;
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+}
+
+.editorSubtitle {
+  font-size: 0.875rem;
+  font-weight: 500;
+}
+
+.editorField {
+  display: flex;
+  gap: 0.25rem;
+}
+
+.editorInput {
+  flex: 1;
+  padding: 0.5rem;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: var(--card-bg);
+  color: var(--text);
+  font-size: 0.875rem;
+  resize: vertical;
+  min-height: 3rem;
+}
+
+.removeBtn {
+  background: none;
+  border: none;
+  color: var(--danger);
+  cursor: pointer;
+  font-size: 1.25rem;
+  padding: 0 0.25rem;
+}
+
+.editorActions {
+  display: flex;
+  gap: 0.5rem;
+  margin-top: 0.5rem;
+}
+
+.divider {
+  border: none;
+  border-top: 1px solid var(--border);
+  margin: 1rem 0;
+}
+
+.error {
+  background: rgba(255, 107, 107, 0.1);
+  border: 1px solid var(--danger);
+  color: var(--danger);
+  padding: 0.75rem;
+  border-radius: 8px;
+  font-size: 0.875rem;
+}
+
+@media (max-width: 1024px) {
+  .editorLayout {
+    grid-template-columns: 1fr;
+  }
+  .sidebar {
+    order: 2;
+    flex-direction: row;
+    flex-wrap: wrap;
+  }
+  .slideList {
+    flex-direction: row;
+    overflow-x: auto;
+  }
+  .center {
+    order: 1;
+  }
+  .editor {
+    order: 3;
+  }
+}
