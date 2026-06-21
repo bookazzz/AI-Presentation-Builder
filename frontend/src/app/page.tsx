@@ -29,7 +29,7 @@ const plans = [
     featured: false,
     badge: null,
     features: [
-      { text: '3 презентации в месяц', ok: true },
+      { text: '1 презентация в месяц', ok: true },
       { text: 'До 8 слайдов', ok: true },
       { text: 'Экспорт PDF', ok: true },
       { text: 'Водяной знак', ok: true },
