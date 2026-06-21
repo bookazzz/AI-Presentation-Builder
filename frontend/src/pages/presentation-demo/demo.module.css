@@ -1,0 +1,252 @@
+.page {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background: #1a1a2e;
+  color: #e0e0e0;
+}
+
+/* Header */
+.header {
+  background: rgba(0, 0, 0, 0.3);
+  backdrop-filter: blur(10px);
+  padding: 12px 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.headerInner {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.logo {
+  font-size: 16px;
+  font-weight: 600;
+  color: white;
+}
+
+/* Main */
+.main {
+  flex: 1;
+  padding: 40px 0 60px;
+}
+
+/* Slide area */
+.slideArea {
+  background: white;
+  border-radius: 12px;
+  min-height: 400px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.3);
+  margin-bottom: 24px;
+}
+
+.watermark {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%) rotate(-30deg);
+  font-size: 120px;
+  font-weight: 900;
+  color: rgba(0, 0, 0, 0.04);
+  pointer-events: none;
+  text-transform: uppercase;
+  user-select: none;
+}
+
+/* Cover */
+.coverSlide {
+  text-align: center;
+  padding: 60px 40px;
+  color: #333;
+}
+
+.coverTitle {
+  font-size: 36px;
+  font-weight: 700;
+  margin: 0 0 16px;
+  color: #1a1a2e;
+}
+
+.coverSub {
+  font-size: 18px;
+  color: #666;
+  max-width: 500px;
+  margin: 0 auto;
+  line-height: 1.5;
+}
+
+/* Content */
+.contentSlide {
+  padding: 48px 40px;
+  width: 100%;
+  color: #333;
+}
+
+.slideTitle {
+  font-size: 28px;
+  font-weight: 700;
+  margin: 0 0 24px;
+  color: #1a1a2e;
+}
+
+.bullets {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.bullets li {
+  padding: 12px 0 12px 28px;
+  position: relative;
+  font-size: 16px;
+  line-height: 1.5;
+  border-bottom: 1px solid #eee;
+}
+
+.bullets li:last-child { border-bottom: none; }
+
+.bullets li::before {
+  content: '→';
+  position: absolute;
+  left: 0;
+  color: #6c63ff;
+  font-weight: 700;
+}
+
+/* CTA */
+.ctaSlide {
+  text-align: center;
+  padding: 60px 40px;
+  color: #333;
+}
+
+.ctaTitle {
+  font-size: 32px;
+  font-weight: 700;
+  margin: 0 0 16px;
+  color: #1a1a2e;
+}
+
+.ctaText {
+  font-size: 16px;
+  color: #666;
+  margin: 0 0 32px;
+  line-height: 1.5;
+  white-space: pre-line;
+}
+
+/* Navigation */
+.nav {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 24px;
+  margin-bottom: 24px;
+}
+
+.navBtn {
+  background: none;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: #e0e0e0;
+  padding: 8px 20px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 14px;
+}
+
+.navBtn:disabled {
+  opacity: 0.3;
+  cursor: default;
+}
+
+.navBtn:hover:not(:disabled) {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.pageIndicator {
+  font-size: 14px;
+  color: #999;
+  min-width: 60px;
+  text-align: center;
+}
+
+/* Thumbnails */
+.thumbnails {
+  display: grid;
+  grid-template-columns: repeat(8, 1fr);
+  gap: 8px;
+  margin-bottom: 24px;
+}
+
+.thumb {
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  padding: 8px;
+  cursor: pointer;
+  text-align: center;
+  transition: background 0.2s;
+}
+
+.thumb:hover {
+  background: rgba(255, 255, 255, 0.12);
+}
+
+.thumbActive {
+  background: rgba(108, 99, 255, 0.2);
+  border-color: #6c63ff;
+}
+
+.thumbNum {
+  display: block;
+  font-size: 12px;
+  color: #6c63ff;
+  font-weight: 600;
+  margin-bottom: 4px;
+}
+
+.thumbTitle {
+  font-size: 11px;
+  color: #999;
+  display: block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Blocked export */
+.blockedExport {
+  text-align: center;
+  padding: 20px;
+  background: rgba(108, 99, 255, 0.1);
+  border: 1px solid rgba(108, 99, 255, 0.2);
+  border-radius: 12px;
+}
+
+.blockedExport p {
+  margin: 0 0 16px;
+  font-size: 14px;
+  color: #ccc;
+}
+
+/* Mobile */
+@media (max-width: 768px) {
+  .coverTitle { font-size: 24px; }
+  .slideTitle { font-size: 22px; }
+  .contentSlide { padding: 32px 20px; }
+  .coverSlide { padding: 40px 20px; }
+  .thumbnails { grid-template-columns: repeat(4, 1fr); }
+}
+
+@media (max-width: 480px) {
+  .coverTitle { font-size: 20px; }
+  .slideTitle { font-size: 18px; }
+  .bullets li { font-size: 14px; }
+  .thumbnails { grid-template-columns: repeat(2, 1fr); }
+}
