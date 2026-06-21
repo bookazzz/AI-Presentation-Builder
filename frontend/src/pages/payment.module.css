@@ -1,0 +1,56 @@
+.page {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+.main {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  padding: 60px 0;
+}
+
+.content {
+  text-align: center;
+  max-width: 500px;
+  margin: 0 auto;
+}
+
+.icon {
+  font-size: 4rem;
+  margin-bottom: 20px;
+}
+
+.title {
+  font-size: 2rem;
+  font-weight: 700;
+  margin: 0 0 16px;
+  color: #111;
+}
+
+.text {
+  color: #666;
+  line-height: 1.6;
+  margin: 0 0 32px;
+  font-size: 1.1rem;
+}
+
+.actions {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  align-items: center;
+}
+
+.redirect {
+  margin-top: 24px;
+  color: #999;
+  font-size: 0.85rem;
+}
+
+@media (max-width: 640px) {
+  .title {
+    font-size: 1.5rem;
+  }
+}

@@ -211,7 +211,7 @@ export default function Home() {
                   ))}
                 </ul>
                 <Button
-                  href={plan.highlighted ? '/register?plan=start' : '/register'}
+                  href={plan.highlighted ? '/pricing' : '/pricing'}
                   variant={plan.highlighted ? 'primary' : 'outline'}
                   fullWidth
                 >

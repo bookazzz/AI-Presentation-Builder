@@ -2,7 +2,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from app.core.config import settings
-from app.api import auth, files, presentations, exports
+from app.api import auth, files, presentations, exports, billing
 
 # Ensure all models are registered with Base.metadata
 import app.models.models  # noqa: F401
@@ -28,6 +28,7 @@ app.include_router(auth.router, prefix="/api/auth", tags=["auth"])
 app.include_router(files.router, prefix="/api/files", tags=["files"])
 app.include_router(presentations.router, prefix="/api/presentations", tags=["presentations"])
 app.include_router(exports.router, prefix="/api/exports", tags=["exports"])
+app.include_router(billing.router, prefix="/api/billing", tags=["billing"])
 
 # Auto-create tables on startup
 from app.core.database import init_db

@@ -32,6 +32,12 @@ class Settings(BaseSettings):
     export_dir: str = "./exports"
     max_file_size_mb: int = 20
 
+    # YooKassa
+    yookassa_shop_id: str = ""
+    yookassa_secret_key: str = ""
+    yookassa_return_url: str = "https://bookazzz.github.io/AI-Presentation-Builder/payment-success"
+    yookassa_fail_url: str = "https://bookazzz.github.io/AI-Presentation-Builder/payment-failed"
+
     # LLM
     llm_provider: str = "openai"
     openai_api_key: str = ""

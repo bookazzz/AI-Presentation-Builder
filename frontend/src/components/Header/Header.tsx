@@ -40,6 +40,9 @@ export default function Header() {
             </nav>
           ) : (
             <nav className="header__nav">
+              <Link href="/pricing" className="header__link">
+                Тарифы
+              </Link>
               <Link href="/login" className="header__link">
                 Войти
               </Link>
