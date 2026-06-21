@@ -1,4 +1,4 @@
-import './TextArea.css';
+'use client';
 
 interface TextAreaProps extends React.TextareaHTMLAttributes<HTMLTextAreaElement> {
   label?: string;

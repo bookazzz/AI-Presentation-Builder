@@ -1,7 +1,7 @@
 'use client';
 
 import { useRef, useState, useCallback } from 'react';
-import './FileUpload.css';
+
 
 interface FileUploadProps {
   onFileSelect: (file: File | null) => void;

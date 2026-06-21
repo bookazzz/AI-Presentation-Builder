@@ -1,4 +1,4 @@
-import './Select.css';
+'use client';
 
 interface SelectProps extends React.SelectHTMLAttributes<HTMLSelectElement> {
   label?: string;

@@ -4,7 +4,7 @@ import Link from 'next/link';
 import { useAuthStore } from '@/store/authStore';
 import Container from '@/components/Container/Container';
 import Button from '@/components/Button/Button';
-import './Header.css';
+
 
 export default function Header() {
   const { isAuthenticated, user, logout } = useAuthStore();

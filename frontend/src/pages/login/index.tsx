@@ -1,26 +1,43 @@
 import { useState } from 'react';
+import { useRouter } from 'next/router';
 import Header from '@/components/Header/Header';
 import Footer from '@/components/Footer/Footer';
 import Container from '@/components/Container/Container';
 import Button from '@/components/Button/Button';
 import Input from '@/components/Input/Input';
 import Card from '@/components/Card/Card';
+import { useAuthStore } from '@/store/authStore';
 import styles from './login.module.css';
 
 export default function Login() {
+  const router = useRouter();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
+  const login = useAuthStore((s) => s.login);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
+
     if (!email || !password) {
       setError('Заполните все поля');
       return;
     }
-    // В будущем — API-запрос
-    window.location.href = '/dashboard';
+
+    setLoading(true);
+    try {
+      await login(email, password);
+      router.push('/dashboard');
+    } catch (err: any) {
+      const message = err?.response?.data?.detail
+        || err?.response?.data?.message
+        || 'Неверный email или пароль';
+      setError(message);
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -51,8 +68,8 @@ export default function Login() {
                 onChange={(e) => setPassword(e.target.value)}
                 required
               />
-              <Button type="submit" variant="primary" fullWidth>
-                Войти
+              <Button type="submit" variant="primary" full disabled={loading}>
+                {loading ? 'Вход...' : 'Войти'}
               </Button>
             </form>
 

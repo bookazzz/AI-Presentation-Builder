@@ -1,4 +1,4 @@
-import './StepIndicator.css';
+'use client';
 
 interface Step {
   id: number;

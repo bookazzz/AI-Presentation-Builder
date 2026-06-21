@@ -21,6 +21,12 @@ class Settings(BaseSettings):
     jwt_algorithm: str = "HS256"
     access_token_expire_minutes: int = 60 * 24  # 24 hours
 
+    # LLM settings
+    llm_provider: str = "openai"
+    llm_api_key: str = ""
+    llm_api_base: str = ""
+    llm_model: str = "gpt-4o-mini"
+
     # Files
     upload_dir: str = "./uploads"
     export_dir: str = "./exports"

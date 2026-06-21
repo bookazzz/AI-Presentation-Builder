@@ -99,7 +99,7 @@ class Export(Base):
     presentation_id = Column(Integer, ForeignKey("presentations.id"), nullable=False)
     user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
     format = Column(String(10), nullable=False)  # pptx, pdf
-    file_path = Column(String(1000), nullable=False)
+    file_path = Column(String(1000), nullable=True, default=None)
     status = Column(String(50), default="pending")
     created_at = Column(DateTime(timezone=True), default=lambda: datetime.now(timezone.utc))
 

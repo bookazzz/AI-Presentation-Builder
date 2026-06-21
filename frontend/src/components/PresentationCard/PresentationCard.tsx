@@ -1,5 +1,5 @@
 import Button from '@/components/Button/Button';
-import './PresentationCard.css';
+
 
 interface PresentationCardProps {
   id: string;

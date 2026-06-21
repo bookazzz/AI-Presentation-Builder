@@ -1,4 +1,5 @@
-import { useState } from 'react';
+import { useState, useRef } from 'react';
+import { useRouter } from 'next/router';
 import Header from '@/components/Header/Header';
 import Footer from '@/components/Footer/Footer';
 import Container from '@/components/Container/Container';
@@ -9,9 +10,22 @@ import Select from '@/components/Select/Select';
 import TextArea from '@/components/TextArea/TextArea';
 import FileUpload from '@/components/FileUpload/FileUpload';
 import StepIndicator from '@/components/StepIndicator/StepIndicator';
+import { useAuthStore } from '@/store/authStore';
+import {
+  createPresentation,
+  uploadFile,
+  createPresentationFromFile,
+  generateOutline,
+  generateSlides,
+  getTaskStatus,
+  exportPresentation,
+  getDownloadUrl,
+  type Presentation,
+  type TaskStatus,
+} from '@/lib/presentations';
 import styles from './create.module.css';
 
-const steps = ['Загрузка', 'Настройки', 'Структура', 'Результат'];
+const steps = ['Загрузка', 'Настройки', 'Структура', 'Генерация', 'Результат'];
 
 const presentationTypes = [
   { value: 'business', label: 'Бизнес-презентация' },
@@ -34,7 +48,7 @@ const audiences = [
   { value: 'general', label: 'Широкая аудитория' },
 ];
 
-const styles_options = [
+const styleOptions = [
   { value: 'business', label: 'Деловой' },
   { value: 'minimal', label: 'Минималистичный' },
   { value: 'modern', label: 'Современный' },
@@ -46,31 +60,181 @@ const styles_options = [
 ];
 
 export default function CreatePresentation() {
+  const router = useRouter();
+  const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
+
   const [step, setStep] = useState(1);
+  const [error, setError] = useState('');
+
+  // Step 1: Input
   const [file, setFile] = useState<File | null>(null);
   const [text, setText] = useState('');
   const [title, setTitle] = useState('');
+
+  // Step 2: Settings
   const [type, setType] = useState('business');
   const [audience, setAudience] = useState('client');
   const [style, setStyle] = useState('business');
   const [slidesCount, setSlidesCount] = useState('10');
   const [language, setLanguage] = useState('ru');
 
+  // API state
+  const [presId, setPresId] = useState<string | null>(null);
+  const [outline, setOutline] = useState<any>(null);
+  const [taskStatus, setTaskStatus] = useState<TaskStatus | null>(null);
+  const [presentation, setPresentation] = useState<Presentation | null>(null);
+  const [isProcessing, setIsProcessing] = useState(false);
+  const [exportId, setExportId] = useState<string | null>(null);
+  const pollRef = useRef<ReturnType<typeof setInterval> | null>(null);
+
+  if (!isAuthenticated) {
+    router.push('/login');
+    return null;
+  }
+
   const handleFileSelect = (f: File) => {
     setFile(f);
-    setStep(2);
+    setError('');
   };
 
   const handleNext = () => {
-    if (step === 1 && !file && !text.trim()) return;
-    setStep(s => Math.min(s + 1, 4));
+    if (step === 1) {
+      if (!file && !text.trim()) {
+        setError('Загрузите файл или введите текст');
+        return;
+      }
+      if (!title.trim()) {
+        setError('Введите название презентации');
+        return;
+      }
+    }
+    setError('');
+    setStep((s) => Math.min(s + 1, 5));
   };
 
-  const handleBack = () => setStep(s => Math.max(s - 1, 1));
+  const handleBack = () => setStep((s) => Math.max(s - 1, 1));
 
-  const handleGenerate = () => {
-    // В будущем — API-запрос
-    setStep(4);
+  // Step 3→4: Create + generate
+  const handleGenerate = async () => {
+    setIsProcessing(true);
+    setError('');
+
+    try {
+      let created: Presentation;
+      let fileId: string | null = null;
+
+      if (file) {
+        // Загружаем файл
+        const uploadRes = await uploadFile(file);
+        fileId = uploadRes.id;
+
+        created = await createPresentationFromFile(fileId, {
+          title,
+          type,
+          audience,
+          style,
+          language,
+          slides_count: parseInt(slidesCount) || 10,
+        });
+      } else {
+        // Из текста — передаём как source_file_id=null, текст будет через JSON
+        created = await createPresentation({
+          title,
+          type,
+          audience,
+          style,
+          language,
+          slides_count: parseInt(slidesCount) || 10,
+        });
+
+        // Сохраняем текст прямо в презентацию
+        if (text.trim()) {
+          const { updatePresentation } = await import('@/lib/presentations');
+          await updatePresentation(created.id, { presentation_json: { raw_text: text } } as any);
+        }
+      }
+
+      setPresId(created.id);
+      setStep(3);
+
+      // === Generate Outline ===
+      const outlineTask = await generateOutline(created.id);
+      setTaskStatus(outlineTask);
+
+      // Poll outline
+      const outline = await pollUntilDone(outlineTask.id);
+      if (!outline || outline.status === 'failed') {
+        setError('Ошибка генерации структуры: ' + (outline?.error_message || ''));
+        setIsProcessing(false);
+        return;
+      }
+
+      // === Generate Slides ===
+      const slidesTask = await generateSlides(created.id);
+      setTaskStatus(slidesTask);
+
+      const slideResult = await pollUntilDone(slidesTask.id);
+      if (!slideResult || slideResult.status === 'failed') {
+        setError('Ошибка генерации слайдов: ' + (slideResult?.error_message || ''));
+        setIsProcessing(false);
+        return;
+      }
+
+      // Загружаем готовую презентацию
+      const { getPresentation } = await import('@/lib/presentations');
+      const pres = await getPresentation(created.id);
+      setPresentation(pres);
+      setOutline(pres.presentation_json);
+      setStep(5);
+    } catch (err: any) {
+      setError(err?.response?.data?.detail || err?.message || 'Ошибка генерации');
+    } finally {
+      setIsProcessing(false);
+      if (pollRef.current) {
+        clearInterval(pollRef.current);
+        pollRef.current = null;
+      }
+    }
+  };
+
+  const pollUntilDone = (taskId: string): Promise<TaskStatus | null> => {
+    return new Promise((resolve) => {
+      let attempts = 0;
+      const maxAttempts = 60; // 60 * 2s = 2 min
+
+      const check = async () => {
+        attempts++;
+        try {
+          const status = await getTaskStatus(taskId);
+          setTaskStatus(status);
+
+          if (status.status === 'completed' || status.status === 'failed') {
+            resolve(status);
+            return;
+          }
+          if (attempts >= maxAttempts) {
+            resolve(null);
+            return;
+          }
+          setTimeout(check, 2000);
+        } catch {
+          setTimeout(check, 2000);
+        }
+      };
+      check();
+    });
+  };
+
+  const handleExport = async (format: 'pptx' | 'pdf') => {
+    if (!presId) return;
+    try {
+      setError('');
+      const result = await exportPresentation(presId, format);
+      setExportId(result.id);
+      window.open(getDownloadUrl(result.id), '_blank');
+    } catch (err: any) {
+      setError('Ошибка экспорта');
+    }
   };
 
   return (
@@ -80,6 +244,8 @@ export default function CreatePresentation() {
         <Container>
           <h1 className={styles.title}>Создание презентации</h1>
           <StepIndicator steps={steps} currentStep={step} className={styles.steps} />
+
+          {error && <div className={styles.error}>{error}</div>}
 
           <Card className={styles.content}>
             {/* Step 1: Upload */}
@@ -135,7 +301,7 @@ export default function CreatePresentation() {
                   />
                   <Select
                     label="Стиль оформления"
-                    options={styles_options}
+                    options={styleOptions}
                     value={style}
                     onChange={(e) => setStyle(e.target.value)}
                   />
@@ -157,95 +323,121 @@ export default function CreatePresentation() {
               </div>
             )}
 
-            {/* Step 3: Structure (mock) */}
+            {/* Step 3: Generation status */}
             {step === 3 && (
+              <div className={styles.stepContent}>
+                <h2 className={styles.stepTitle}>Генерация презентации</h2>
+                <div className={styles.generationStatus}>
+                  <div className={styles.spinner} />
+                  <p className={styles.generationText}>
+                    {taskStatus?.status === 'processing' || taskStatus?.status === 'pending'
+                      ? 'Анализируем документ и формируем структуру...'
+                      : 'Создаём слайды...'}
+                  </p>
+                  {taskStatus && (
+                    <div className={styles.progressBar}>
+                      <div
+                        className={styles.progressFill}
+                        style={{ width: `${taskStatus.progress || 50}%` }}
+                      />
+                    </div>
+                  )}
+                  <p className={styles.generationHint}>
+                    Это может занять до 2 минут в зависимости от объёма данных
+                  </p>
+                </div>
+              </div>
+            )}
+
+            {/* Step 4: Outline review */}
+            {step === 4 && outline && (
               <div className={styles.stepContent}>
                 <h2 className={styles.stepTitle}>Структура презентации</h2>
                 <p className={styles.stepDesc}>
                   Проверьте и отредактируйте структуру перед генерацией
                 </p>
                 <div className={styles.outline}>
-                  <div className={styles.outlineSlide}>
-                    <span className={styles.outlineNum}>1</span>
-                    <div>
-                      <strong>Титульный слайд</strong>
-                      <p>{title || 'Название презентации'}</p>
+                  {(outline as any)?.slides?.map((slide: any, i: number) => (
+                    <div key={i} className={styles.outlineSlide}>
+                      <span className={styles.outlineNum}>{slide.slide_number || i + 1}</span>
+                      <div>
+                        <strong>{slide.title || 'Слайд ' + (i + 1)}</strong>
+                        {slide.content && Array.isArray(slide.content) && slide.content.length > 0 && (
+                          <p>{slide.content[0]}</p>
+                        )}
+                      </div>
+                      <span className={styles.outlineType}>{slide.type}</span>
                     </div>
-                  </div>
-                  <div className={styles.outlineSlide}>
-                    <span className={styles.outlineNum}>2</span>
-                    <div>
-                      <strong>Введение / Контекст</strong>
-                      <p>Краткий обзор темы и целей презентации</p>
-                    </div>
-                  </div>
-                  <div className={styles.outlineSlide}>
-                    <span className={styles.outlineNum}>3–5</span>
-                    <div>
-                      <strong>Основная часть</strong>
-                      <p>Ключевые тезисы, данные, аргументы</p>
-                    </div>
-                  </div>
-                  <div className={styles.outlineSlide}>
-                    <span className={styles.outlineNum}>{slidesCount - 1}</span>
-                    <div>
-                      <strong>Выводы</strong>
-                      <p>Краткие итоги и ключевые результаты</p>
-                    </div>
-                  </div>
-                  <div className={styles.outlineSlide}>
-                    <span className={styles.outlineNum}>{slidesCount}</span>
-                    <div>
-                      <strong>Финальный слайд / CTA</strong>
-                      <p>Следующий шаг, контакты, призыв к действию</p>
-                    </div>
-                  </div>
+                  ))}
                 </div>
               </div>
             )}
 
-            {/* Step 4: Result (mock) */}
-            {step === 4 && (
+            {/* Step 5: Result */}
+            {step === 5 && presentation && (
               <div className={styles.stepContent}>
                 <h2 className={styles.stepTitle}>Презентация готова!</h2>
                 <div className={styles.resultIcon}>🎉</div>
                 <p className={styles.resultText}>
-                  Презентация «{title || 'Новая презентация'}» создана и сохранена в вашем кабинете.
+                  Презентация «{presentation.title}» создана и сохранена в вашем кабинете.
+                  {' '}{presentation.slides_count} слайдов • {presentation.type}
                 </p>
+                <div className={styles.resultPreview}>
+                  {presentation.presentation_json && (
+                    <div className={styles.slidesPreview}>
+                      {((presentation.presentation_json as any)?.slides || []).slice(0, 3).map((s: any, i: number) => (
+                        <div key={i} className={styles.previewSlide}>
+                          <div className={styles.previewSlideTitle}>{s.title}</div>
+                          <div className={styles.previewSlideType}>{s.type}</div>
+                          <ul className={styles.previewSlidePoints}>
+                            {(s.content || []).slice(0, 2).map((c: string, j: number) => (
+                              <li key={j}>{c}</li>
+                            ))}
+                          </ul>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
                 <div className={styles.resultActions}>
-                  <Button href="/dashboard" variant="primary">
-                    Перейти к презентациям
+                  <Button variant="primary" onClick={() => router.push('/dashboard')}>
+                    К списку презентаций
                   </Button>
-                  <Button variant="outline">
+                  <Button variant="secondary" onClick={() => handleExport('pptx')}>
                     Скачать PPTX
                   </Button>
-                  <Button variant="outline">
+                  <Button variant="secondary" onClick={() => handleExport('pdf')}>
                     Скачать PDF
                   </Button>
+                  {presId && (
+                    <Button variant="ghost" onClick={() => router.push(`/edit?id=${presId}`)}>
+                      Редактировать
+                    </Button>
+                  )}
                 </div>
               </div>
             )}
 
             {/* Navigation */}
-            <div className={styles.navigation}>
-              {step > 1 && step < 4 && (
-                <Button variant="outline" onClick={handleBack}>
-                  Назад
-                </Button>
-              )}
-              <div className={styles.navRight}>
-                {step < 3 && (
-                  <Button variant="primary" onClick={handleNext} disabled={step === 1 && !file && !text.trim()}>
-                    Далее
-                  </Button>
+            {step < 3 && (
+              <div className={styles.navigation}>
+                {step > 1 && (
+                  <Button variant="ghost" onClick={handleBack}>Назад</Button>
                 )}
-                {step === 3 && (
-                  <Button variant="primary" onClick={handleGenerate}>
-                    Создать презентацию
-                  </Button>
-                )}
+                <div className={styles.navRight}>
+                  {step === 1 && (
+                    <Button variant="primary" onClick={handleNext} disabled={!file && !text.trim()}>
+                      Далее
+                    </Button>
+                  )}
+                  {step === 2 && (
+                    <Button variant="primary" onClick={handleGenerate} disabled={isProcessing}>
+                      {isProcessing ? 'Генерация...' : 'Создать презентацию'}
+                    </Button>
+                  )}
+                </div>
               </div>
-            </div>
+            )}
           </Card>
         </Container>
       </main>
