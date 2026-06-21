@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useRouter } from 'next/router';
+import SEO from '@/components/SEO/SEO';
 import Header from '@/components/Header/Header';
 import Footer from '@/components/Footer/Footer';
 import Container from '@/components/Container/Container';
@@ -42,6 +43,12 @@ export default function Login() {
 
   return (
     <div className={styles.page}>
+      <SEO
+        title="Вход в аккаунт"
+        description="Войдите в AI Presentation Builder, чтобы управлять презентациями, просматривать историю и продолжать работу."
+        canonical="https://bookazzz.github.io/AI-Presentation-Builder/login"
+        noindex
+      />
       <Header />
       <main className={styles.main}>
         <Container>

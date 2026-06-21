@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/router';
+import SEO from '@/components/SEO/SEO';
 import Header from '@/components/Header/Header';
 import Footer from '@/components/Footer/Footer';
 import Container from '@/components/Container/Container';
@@ -164,6 +165,11 @@ export default function EditPresentation() {
 
   return (
     <div className={styles.page}>
+      <SEO
+        title="Редактор презентации"
+        description="Редактируйте слайды: меняйте текст, заголовки, порядок и дизайн перед экспортом."
+        noindex
+      />
       <Header />
       <main className={styles.main}>
         <Container>

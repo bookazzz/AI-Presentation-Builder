@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/router';
 import Link from 'next/link';
+import SEO from '@/components/SEO/SEO';
 import Header from '@/components/Header/Header';
 import Footer from '@/components/Footer/Footer';
 import Container from '@/components/Container/Container';
@@ -99,6 +100,11 @@ export default function Dashboard() {
   if (!mounted) {
     return (
       <div className={styles.page}>
+        <SEO
+          title="Мои презентации"
+          description="Личный кабинет AI Presentation Builder — просматривайте, редактируйте и скачивайте созданные презентации."
+          noindex
+        />
         <Header />
         <main className={styles.main}>
           <Container>
@@ -114,6 +120,11 @@ export default function Dashboard() {
 
   return (
     <div className={styles.page}>
+      <SEO
+        title="Мои презентации"
+        description="Личный кабинет AI Presentation Builder — просматривайте, редактируйте и скачивайте созданные презентации."
+        noindex
+      />
       <Header />
 
       <main className={styles.main}>

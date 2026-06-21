@@ -1,4 +1,6 @@
 import { useState } from 'react';
+import Head from 'next/head';
+import SEO from '@/components/SEO/SEO';
 import Header from '@/components/Header/Header';
 import Footer from '@/components/Footer/Footer';
 import Container from '@/components/Container/Container';
@@ -76,6 +78,33 @@ export default function Home() {
 
   return (
     <div className={styles.page}>
+      <SEO
+        title="Создание презентаций из текста и Excel с помощью AI"
+        description="AI Presentation Builder — превратите текст или Excel-файл в готовую бизнес-презентацию с графиками, выводами и дизайном за пару минут. PPTX и PDF экспорт."
+        canonical="https://bookazzz.github.io/AI-Presentation-Builder/"
+        ogType="website"
+      />
+
+      {/* JSON-LD Structured Data */}
+      <Head>
+        <script type="application/ld+json">
+          {JSON.stringify({
+            "@context": "https://schema.org",
+            "@type": "WebApplication",
+            "name": "AI Presentation Builder",
+            "url": "https://bookazzz.github.io/AI-Presentation-Builder/",
+            "description": "Сервис, который превращает текстовые документы и Excel-отчёты в готовые бизнес-презентации с выводами, графиками и экспортом в PowerPoint.",
+            "applicationCategory": "BusinessApplication",
+            "operatingSystem": "Web",
+            "offers": {
+              "@type": "Offer",
+              "price": "0",
+              "priceCurrency": "RUB"
+            }
+          })}
+        </script>
+      </Head>
+
       <Header />
 
       {/* Hero */}

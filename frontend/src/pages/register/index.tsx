@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useRouter } from 'next/router';
+import SEO from '@/components/SEO/SEO';
 import Header from '@/components/Header/Header';
 import Footer from '@/components/Footer/Footer';
 import Container from '@/components/Container/Container';
@@ -47,6 +48,12 @@ export default function Register() {
 
   return (
     <div className={styles.page}>
+      <SEO
+        title="Регистрация"
+        description="Зарегистрируйтесь в AI Presentation Builder и начните создавать профессиональные презентации из текста и Excel-файлов бесплатно."
+        canonical="https://bookazzz.github.io/AI-Presentation-Builder/register"
+        noindex
+      />
       <Header />
       <main className={styles.main}>
         <Container>

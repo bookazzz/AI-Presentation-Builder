@@ -1,5 +1,6 @@
 import { useState, useRef, useEffect } from 'react';
 import { useRouter } from 'next/router';
+import SEO from '@/components/SEO/SEO';
 import Header from '@/components/Header/Header';
 import Footer from '@/components/Footer/Footer';
 import Container from '@/components/Container/Container';
@@ -102,6 +103,12 @@ export default function CreatePresentation() {
   if (!mounted) {
     return (
       <div className={styles.page}>
+        <SEO
+          title="Создание презентации"
+          description="Загрузите файл или вставьте текст — AI создаст структурированную презентацию с дизайном, слайдами и графиками."
+          canonical="https://bookazzz.github.io/AI-Presentation-Builder/create"
+          noindex
+        />
         <Header />
         <main className={styles.main}>
           <Container>
@@ -260,6 +267,12 @@ export default function CreatePresentation() {
 
   return (
     <div className={styles.page}>
+      <SEO
+        title="Создание презентации"
+        description="Загрузите файл или вставьте текст — AI создаст структурированную презентацию с дизайном, слайдами и графиками."
+        canonical="https://bookazzz.github.io/AI-Presentation-Builder/create"
+        noindex
+      />
       <Header />
       <main className={styles.main}>
         <Container>

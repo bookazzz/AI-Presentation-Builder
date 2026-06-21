@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import SEO from '@/components/SEO/SEO';
 import Container from '@/components/Container/Container';
 import Button from '@/components/Button/Button';
 import styles from './demo.module.css';
@@ -23,6 +24,12 @@ export default function PresentationDemo() {
 
   return (
     <div className={styles.page}>
+      <SEO
+        title="Демо-презентация"
+        description="Посмотрите пример презентации, созданной AI Presentation Builder из текста: слайды, структура, графики и выводы."
+        canonical="https://bookazzz.github.io/AI-Presentation-Builder/presentation-demo"
+        ogType="website"
+      />
       {/* Top bar */}
       <header className={styles.header}>
         <Container>

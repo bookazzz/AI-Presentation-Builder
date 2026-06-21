@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import SEO from '@/components/SEO/SEO';
 import Header from '@/components/Header/Header';
 import Footer from '@/components/Footer/Footer';
 import Container from '@/components/Container/Container';
@@ -8,6 +9,11 @@ import styles from './404.module.css';
 export default function Custom404() {
   return (
     <div className={styles.page}>
+      <SEO
+        title="Страница не найдена"
+        description="Страница не найдена — возможно, она была перемещена или удалена. Вернитесь на главную или создайте новую презентацию."
+        noindex
+      />
       <Header />
       <main className={styles.main}>
         <Container>
