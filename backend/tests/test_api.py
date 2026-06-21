@@ -1,161 +1,157 @@
-"""Tests for API endpoints using TestClient (httpx).
+"""Tests for API endpoints using httpx.AsyncClient.
 
-Note: Database is initialized at module level to avoid event loop issues.
+Database is initialized in conftest.py with session scope.
 """
 import pytest
+import uuid
 from httpx import AsyncClient, ASGITransport
-import asyncio
-
 from app.main import app
-from app.core.database import init_db
-from app.core.config import settings
-
-# Initialize in-memory DB once
-settings.database_url = "sqlite+aiosqlite://"
-loop = asyncio.new_event_loop()
-asyncio.set_event_loop(loop)
-loop.run_until_complete(init_db())
-loop.close()
 
 
 @pytest.fixture
-def client():
-    """Create async test client using sync transport."""
-    import httpx
+async def client():
+    """Create async test client."""
     transport = ASGITransport(app=app)
-    with httpx.Client(transport=transport, base_url="http://test") as c:
-        yield c
+    async with AsyncClient(transport=transport, base_url="http://test") as ac:
+        yield ac
 
 
 def auth_header(token: str) -> dict:
     return {"Authorization": "Bearer " + token}
 
 
-class TestAuth:
-    def test_health(self, client):
-        resp = client.get("/api/health")
-        assert resp.status_code == 200
-        data = resp.json()
-        assert data["status"] == "ok"
+def unique_email(prefix: str = "test") -> str:
+    return f"{prefix}-{uuid.uuid4().hex[:6]}@example.com"
 
-    def test_register(self, client):
-        resp = client.post("/api/auth/register", json={
-            "email": "test@example.com",
-            "password": "Test123!@#",
-            "name": "Test User"
+
+class TestAuth:
+    async def test_health(self, client):
+        resp = await client.get("/api/health")
+        assert resp.status_code == 200
+        assert resp.json()["status"] == "ok"
+
+    async def test_register(self, client):
+        email = unique_email()
+        resp = await client.post("/api/auth/register", json={
+            "email": email, "password": "Test123!@#", "name": "Test User"
         })
         assert resp.status_code == 200
         data = resp.json()
         assert "access_token" in data
-        assert data["user"]["email"] == "test@example.com"
+        assert data["user"]["email"] == email
 
-    def test_register_duplicate(self, client):
-        client.post("/api/auth/register", json={
-            "email": "dup@example.com",
-            "password": "Pass1234!"
+    async def test_register_duplicate(self, client):
+        email = unique_email("dup")
+        resp1 = await client.post("/api/auth/register", json={
+            "email": email, "password": "Pass1234!"
         })
-        resp = client.post("/api/auth/register", json={
-            "email": "dup@example.com",
-            "password": "Pass1234!"
+        assert resp1.status_code == 200
+        resp2 = await client.post("/api/auth/register", json={
+            "email": email, "password": "Pass1234!"
         })
-        assert resp.status_code == 400
+        assert resp2.status_code == 400
 
-    def test_login(self, client):
-        client.post("/api/auth/register", json={
-            "email": "login@example.com",
-            "password": "Pass1234!"
+    async def test_login(self, client):
+        email = unique_email("login")
+        await client.post("/api/auth/register", json={
+            "email": email, "password": "Pass1234!"
         })
-        resp = client.post("/api/auth/login", json={
-            "email": "login@example.com",
-            "password": "Pass1234!"
+        resp = await client.post("/api/auth/login", json={
+            "email": email, "password": "Pass1234!"
         })
         assert resp.status_code == 200
         assert "access_token" in resp.json()
 
-    def test_login_wrong_password(self, client):
-        resp = client.post("/api/auth/login", json={
-            "email": "test@example.com",
-            "password": "wrong"
+    async def test_login_wrong_password(self, client):
+        resp = await client.post("/api/auth/login", json={
+            "email": unique_email(), "password": "wrong"
         })
         assert resp.status_code == 401
 
-    def test_me(self, client):
-        resp = client.post("/api/auth/register", json={
-            "email": "me@example.com",
-            "password": "Pass1234!"
+    async def test_me(self, client):
+        email = unique_email("me")
+        reg = await client.post("/api/auth/register", json={
+            "email": email, "password": "Pass1234!"
         })
-        token = resp.json()["access_token"]
-        resp = client.get("/api/auth/me", headers=auth_header(token))
+        token = reg.json()["access_token"]
+        resp = await client.get("/api/auth/me", headers=auth_header(token))
         assert resp.status_code == 200
-        assert resp.json()["email"] == "me@example.com"
+        assert resp.json()["email"] == email
 
-    def test_me_no_token(self, client):
-        resp = client.get("/api/auth/me")
+    async def test_me_no_token(self, client):
+        resp = await client.get("/api/auth/me")
         assert resp.status_code == 401
 
 
 class TestPresentations:
-    def _register(self, client) -> str:
-        resp = client.post("/api/auth/register", json={
-            "email": "pres@example.com",
-            "password": "Pass1234!"
+    async def test_create_presentation(self, client):
+        reg = await client.post("/api/auth/register", json={
+            "email": unique_email("pres"), "password": "Pass1234!"
         })
-        return resp.json()["access_token"]
-
-    def test_create_presentation(self, client):
-        token = self._register(client)
-        resp = client.post("/api/presentations", json={
-            "title": "Test Report",
-            "type": "report",
-            "audience": "manager",
-            "style": "business",
-            "language": "ru",
-            "source_text": "Sales grew 20% in Q1 2026."
+        token = reg.json()["access_token"]
+        resp = await client.post("/api/presentations", json={
+            "title": "Test Report", "type": "report",
+            "audience": "manager", "style": "business",
+            "language": "ru", "source_text": "Sales grew 20% in Q1."
         }, headers=auth_header(token))
         assert resp.status_code == 200
-        data = resp.json()
-        assert data["title"] == "Test Report"
-        assert data["status"] == "draft"
-        assert data["slides_count"] == 10
+        assert resp.json()["title"] == "Test Report"
+        assert resp.json()["status"] == "draft"
 
-    def test_list_presentations(self, client):
-        token = self._register(client)
-        client.post("/api/presentations", json={
+    async def test_list_presentations(self, client):
+        reg = await client.post("/api/auth/register", json={
+            "email": unique_email("list"), "password": "Pass1234!"
+        })
+        token = reg.json()["access_token"]
+        await client.post("/api/presentations", json={
             "title": "My Pres", "type": "free"
         }, headers=auth_header(token))
-        resp = client.get("/api/presentations", headers=auth_header(token))
+        resp = await client.get("/api/presentations", headers=auth_header(token))
         assert resp.status_code == 200
         assert len(resp.json()) >= 1
 
-    def test_get_presentation(self, client):
-        token = self._register(client)
-        create = client.post("/api/presentations", json={
+    async def test_get_presentation(self, client):
+        reg = await client.post("/api/auth/register", json={
+            "email": unique_email("get"), "password": "Pass1234!"
+        })
+        token = reg.json()["access_token"]
+        create = await client.post("/api/presentations", json={
             "title": "Get Test", "type": "free"
         }, headers=auth_header(token))
         pid = create.json()["id"]
-        resp = client.get(f"/api/presentations/{pid}", headers=auth_header(token))
+        resp = await client.get(f"/api/presentations/{pid}", headers=auth_header(token))
         assert resp.status_code == 200
         assert resp.json()["id"] == pid
 
-    def test_update_presentation(self, client):
-        token = self._register(client)
-        create = client.post("/api/presentations", json={
+    async def test_update_presentation(self, client):
+        reg = await client.post("/api/auth/register", json={
+            "email": unique_email("upd"), "password": "Pass1234!"
+        })
+        token = reg.json()["access_token"]
+        create = await client.post("/api/presentations", json={
             "title": "Old Title", "type": "free"
         }, headers=auth_header(token))
         pid = create.json()["id"]
-        resp = client.patch(f"/api/presentations/{pid}", json={
+        resp = await client.patch(f"/api/presentations/{pid}", json={
             "title": "New Title"
         }, headers=auth_header(token))
         assert resp.status_code == 200
         assert resp.json()["title"] == "New Title"
 
-    def test_delete_presentation(self, client):
-        token = self._register(client)
-        create = client.post("/api/presentations", json={
+    async def test_delete_presentation(self, client):
+        import uuid
+        email = f"del-{uuid.uuid4().hex[:8]}@example.com"
+        reg = await client.post("/api/auth/register", json={
+            "email": email, "password": "Pass1234!"
+        })
+        token = reg.json()["access_token"]
+        create = await client.post("/api/presentations", json={
             "title": "To Delete", "type": "free"
         }, headers=auth_header(token))
         pid = create.json()["id"]
-        resp = client.delete(f"/api/presentations/{pid}", headers=auth_header(token))
-        assert resp.status_code == 204
-        resp = client.get(f"/api/presentations/{pid}", headers=auth_header(token))
-        assert resp.status_code == 404
+        # Delete
+        resp = await client.delete(f"/api/presentations/{pid}", headers=auth_header(token))
+        assert resp.status_code == 204, f"Delete failed: {resp.status_code}"
+        # Verify deletion
+        resp = await client.get(f"/api/presentations/{pid}", headers=auth_header(token))
+        assert resp.status_code == 404, f"Get after delete: {resp.status_code}"

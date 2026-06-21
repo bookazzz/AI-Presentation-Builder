@@ -5,7 +5,7 @@ import json
 import logging
 from datetime import datetime, timezone
 
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, UploadFile, File, Form, Response
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select, desc
 
@@ -124,7 +124,7 @@ async def delete_presentation(
 
     await db.delete(pres)
     await db.commit()
-    return {"status": "deleted"}
+    return Response(status_code=204)
 
 # --- Generation ---
 

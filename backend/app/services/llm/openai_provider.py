@@ -15,7 +15,7 @@ class OpenAIProvider(LLMProvider):
     """OpenAI / OpenRouter / any OpenAI-compatible API."""
 
     def __init__(self):
-        self.api_key = settings.llm_api_key or ""
+        self.api_key = (settings.openai_api_key or settings.llm_api_key or "").strip()
         self.api_base = settings.llm_api_base or "https://api.openai.com/v1"
         self.default_model = settings.llm_model or "gpt-4o-mini"
         self._client = None
