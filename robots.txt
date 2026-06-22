@@ -1,0 +1,10 @@
+# Allow all bots
+User-agent: *
+Allow: /
+
+# Sitemap
+Sitemap: https://bookazzz.github.io/AI-Presentation-Builder/sitemap.xml
+
+# Disallow private pages
+Disallow: /dashboard/
+Disallow: /edit/
